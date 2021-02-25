@@ -48,6 +48,8 @@ impl Drop for List {
     fn drop(&mut self) {
         let mut curr_link = mem::replace(&mut self.head, Link::Empty);
 
+        // we could also use while let Some(_) = self.pop() { }
+        // but this is better.
         while let Link::More(mut boxed_node) = curr_link {
             curr_link = mem::replace(&mut boxed_node.next, Link::Empty);
         }
