@@ -40,6 +40,20 @@ impl List {
     }
 }
 
+// we need to implemented drop manually because
+// the regular drop would call recursivly all drops from
+// all elements from the list.
+// this could lead into a stack overflow.
+impl Drop for List {
+    fn drop(&mut self) {
+        let mut curr_link = mem::replace(&mut self.head, Link::Empty);
+
+        while let Link::More(mut boxed_node) = curr_link {
+            curr_link = mem::replace(&mut boxed_node.next, Link::Empty);
+        }
+    }
+}
+
 // Indicates that we compile this part only when testing.
 #[cfg(test)]
 mod test {
