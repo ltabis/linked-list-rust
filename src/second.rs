@@ -1,21 +1,21 @@
 // for the sake of being simple, we will skip genericity for this one
-pub struct List {
-    head: Link
+pub struct List<T> {
+    head: Link<T>
 }
 
-type Link = Option<Box<Node>>;
+type Link<T> = Option<Box<Node<T>>>;
 
-struct Node {
-    value: i32,
-    next: Link
+struct Node<T> {
+    value: T,
+    next: Link<T>
 }
 
-impl List {
+impl<T> List<T> {
     fn new() -> Self {
         List { head: None }
     }
 
-    fn push(&mut self, value: i32) {
+    fn push(&mut self, value: T) {
         let new_node = Box::new(Node {
             value,
             next: self.head.take()
@@ -24,7 +24,7 @@ impl List {
         self.head = Some(new_node);
     }
 
-    fn pop(&mut self) -> Option<i32> {
+    fn pop(&mut self) -> Option<T> {
         self.head.take().map(|node| {
             self.head = node.next;
             node.value
@@ -36,7 +36,7 @@ impl List {
 // the regular drop would call recursivly all drops from
 // all elements from the list.
 // this could lead into a stack overflow.
-impl Drop for List {
+impl<T> Drop for List<T> {
     fn drop(&mut self) {
         let mut curr_link = self.head.take();
 
@@ -56,10 +56,13 @@ mod test {
     #[test]
     fn basics() {
         let mut list = List::new();
+        let mut list2 = List::new();
 
         assert_eq!(list.pop(), None);
 
         list.push(42);
+        list2.push("abcdef");
+        assert_eq!(list2.pop(), Some("abcdef"));
         assert_eq!(list.pop(), Some(42));
 
         list.push(1);
