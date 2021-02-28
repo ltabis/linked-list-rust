@@ -30,6 +30,18 @@ impl<T> List<T> {
             node.value
         })
     }
+
+    fn peek(&self) -> Option<&T> {
+        self.head.as_ref().map(|node| {
+            &node.value
+        })
+    }
+
+    fn peek_mut(&mut self) -> Option<&mut T> {
+        self.head.as_mut().map(|node| {
+            &mut node.value
+        })
+    }
 }
 
 // we need to implemented drop manually because
@@ -78,5 +90,21 @@ mod test {
         assert_eq!(list.pop(), Some(5));
         assert_eq!(list.pop(), Some(4));
         assert_eq!(list.pop(), Some(1));
+    }
+
+    #[test]
+    fn peek() {
+        let mut list = List::new();
+        assert_eq!(list.peek(), None);
+        let mut list2 = List::new();
+        assert_eq!(list2.peek(), None);
+
+        list.push(5);
+        list2.push("abcdef");
+
+        assert_eq!(list.peek(), Some(&5));
+        assert_eq!(list.pop(), Some(5));
+        assert_eq!(list2.peek_mut(), Some(&mut "abcdef"));
+        assert_eq!(list2.pop(), Some("abcdef"));
     }
 }
