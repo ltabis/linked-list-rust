@@ -3,6 +3,8 @@ pub struct List<T> {
     head: Link<T>
 }
 
+pub struct IntoIter<T>(List<T>);
+
 type Link<T> = Option<Box<Node<T>>>;
 
 struct Node<T> {
@@ -41,6 +43,17 @@ impl<T> List<T> {
         self.head.as_mut().map(|node| {
             &mut node.value
         })
+    }
+
+    pub fn into_iter(self) -> IntoIter<T> {
+        IntoIter(self)
+    } 
+}
+
+impl<T> Iterator for IntoIter<T> {
+    type Item = T;
+    fn next(&mut self) -> Option<Self::Item> {
+        self.0.pop()
     }
 }
 
@@ -106,5 +119,21 @@ mod test {
         assert_eq!(list.pop(), Some(5));
         assert_eq!(list2.peek_mut(), Some(&mut "abcdef"));
         assert_eq!(list2.pop(), Some("abcdef"));
+    }
+
+    #[test]
+    fn into_iter() {
+        let mut list = List::new();
+
+        list.push(1);
+        list.push(2);
+        list.push(3);
+
+        let mut iterator = list.into_iter();
+
+        assert_eq!(iterator.next(), Some(3));
+        assert_eq!(iterator.next(), Some(2));
+        assert_eq!(iterator.next(), Some(1));
+        assert_eq!(iterator.next(), None);
     }
 }
