@@ -170,5 +170,7 @@ mod test {
         assert_eq!(iterator.next(), Some(&2));
         assert_eq!(iterator.next(), Some(&1));
         assert_eq!(iterator.next(), None);
+
+        assert_ne!(list.pop(), None);
     }
 }
