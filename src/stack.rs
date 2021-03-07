@@ -4,6 +4,10 @@ pub struct Stack<T> {
     head: Link<T>
 }
 
+pub struct Iter<'a, T> {
+    next: Option<&'a Node<T>>
+}
+
 type Link<T> = Option<Rc<Node<T>>>;
 
 struct Node<T> {
@@ -14,6 +18,10 @@ struct Node<T> {
 impl<T> Stack<T> {
     fn new() -> Self {
         Stack { head: None }
+    }
+
+    pub fn iter(&self) -> Iter<T> {
+        Iter { next: self.head.as_deref() }
     }
 
     pub fn append(&self, value: T) -> Self {
@@ -31,6 +39,17 @@ impl<T> Stack<T> {
 
     pub fn head(&self) -> Option<&T> {
         self.head.as_ref().map(|node| &node.value)
+    }
+}
+
+impl<'a, T> Iterator for Iter<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.next.map(|node| {
+            self.next = node.next.as_deref();
+            &node.value
+        })
     }
 }
 
@@ -60,5 +79,15 @@ mod test {
 
         let stack = stack.tail();
         assert_eq!(stack.head(), None);
+    }
+
+    #[test]
+    fn iter() {
+        let stack = Stack::new().append(1).append(2).append(3);
+
+        let mut iter = stack.iter();
+        assert_eq!(iter.next(), Some(&3));
+        assert_eq!(iter.next(), Some(&2));
+        assert_eq!(iter.next(), Some(&1));
     }
 }
